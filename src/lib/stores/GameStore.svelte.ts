@@ -1,4 +1,6 @@
 import AuctionItem from "$lib/types/AuctionItem";
+import GameState from "$lib/types/GameState";
+import Player from "$lib/types/player";
 
 // The game has started
 let startedState = $state(true);
@@ -7,52 +9,64 @@ let startedState = $state(true);
 let auctionState: AuctionItem | null = $state(null);
 let auctionListState: AuctionItem[] = $state([]);
 let currentAuctionIndexState: number = $state(0);
+let tiedItems: AuctionItem[] = $state([]);
 
 // Game state
-enum GameState {
-    waitToStart,
-    waitForBids,
-    finished
-}
-
 let generalGameState = $state(GameState.waitForBids);
 let timerProgState = $state(0);
-let lockedPlayers = $state([]);
-let allPlayersState = $state([
+let lockedPlayers: Player[] = $state([]);
+let allPlayersState: Player[] = $state([
     {
         name: 'p2',
-        waiting: true
+        money: 100,
+        bid: 0,
+        waiting: true,
+        inventory: []
+    },
+    {
+        name: 'You',
+        money: 100,
+        bid: 0,
+        waiting: true,
+        inventory: []
+    },
+    {
+        name: 'p3',
+        money: 100,
+        bid: 0,
+        waiting: true,
+        inventory: []
     }
 ]);
 
 export function started() {
-	return {
-		get value() { return startedState },
-		set value(v) { startedState = v },
-		toggle: () => {
-			console.log("=>", !startedState);
-			startedState = !startedState;
-		}
-   };
+    return {
+        get value() { return startedState },
+        set value(v) { startedState = v },
+        toggle: () => {
+            console.log("=>", !startedState);
+            startedState = !startedState;
+        }
+    };
 }
 
 export function timerProg() {
-	return {
-		get value() { return timerProgState },
-		set value(v) { timerProgState = v },
-   };
+    return {
+        get value() { return timerProgState },
+        set value(v) { timerProgState = v },
+    };
 }
 
 export function Auction() {
-	return {
+    return {
         // The current item
-		get item() { return auctionState },
-		set item(v) { auctionState = v },
+        get item() { return auctionState },
+        set item(v) { auctionState = v },
         // The current item index
         get itemIndex() { return currentAuctionIndexState },
-		set itemIndex(v) { currentAuctionIndexState = v },
+        set itemIndex(v) { currentAuctionIndexState = v },
         // All the items
-        get list() {return auctionListState},
+        get list() { return auctionListState },
         set list(v) {
             auctionListState = v;
             currentAuctionIndexState = 0;
@@ -62,22 +76,69 @@ export function Auction() {
             currentAuctionIndexState++;
             auctionState = auctionListState[currentAuctionIndexState];
         }
-   };
+    };
 }
 
 export function Game() {
     return {
         get allOtherPlayers() { return allPlayersState },
-		set allOtherPlayers(v) { allPlayersState = v },
-        get gameState() { return generalGameState },
-		set gameState(v) { generalGameState = v },
+        set allOtherPlayers(v) { allPlayersState = v },
 
-        lockPlayerBid: (player: any) => {
-            lockedPlayers.push(player)
+        get lockedPlayers() { return lockedPlayers },
+        set lockedPlayers(v) { lockedPlayers = v },
+
+        get gameState() { return generalGameState },
+        set gameState(v) { generalGameState = v },
+
+        get localPlayer() { return allPlayersState.find(v => v.name === "You") },
+
+        lockPlayerBid: (player: Player) => {
+            // Validate in server later
+            lockedPlayers = [...lockedPlayers, player];
+            player.waiting = false;
+        },
+        getHighestBidder: (): Player | null => {
+            const activePlayers = allPlayersState.filter(player => !player.waiting);
+
+            if (activePlayers.length === 0) {
+                return null;
+            }
+
+            const highestBidder = activePlayers.reduce((highest, current) => {
+                if (current.bid > highest.bid) {
+                    return current;
+                }
+                return highest;
+            }, activePlayers[0]);
+
+            // Check for ties
+            const isTie = activePlayers.some(player =>
+                player !== highestBidder && player.bid === highestBidder.bid
+            );
+
+            return isTie ? null : highestBidder;
+        },
+        declareWinner(winner: Player) {
+            if(!auctionState) {
+                console.error("Auction is empty");
+                return;
+            }
+
+            winner.inventory.push(auctionState);
+            winner.money -= winner.bid;
+
+            Auction().nextItem();
+
+            for(let ps of allPlayersState) {
+                ps.waiting = true;
+                ps.bid = 0;
+            }
+        },
+        auctionWasTied(item: AuctionItem) {
+            tiedItems.push(item);
         },
         isWaitingForPlayers: () => {
-            // +1 because the local player is not included
-            return lockedPlayers.length + 1 < allPlayersState.length;
+            return lockedPlayers.length < allPlayersState.length;
         },
         newRound: () => {
             lockedPlayers = [];
