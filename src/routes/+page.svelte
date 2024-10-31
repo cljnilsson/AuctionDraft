@@ -29,7 +29,31 @@
 			notes: 'Something 3',
 			image: '/imgs/charmander.png',
             boughtFor: null
-		}
+		},
+		{
+			name: 'Wooper',
+			notes: 'Something 4',
+			image: '/imgs/wooper-f.png',
+            boughtFor: null
+		},
+		{
+			name: 'Paldean Wooper',
+			notes: 'Something 5',
+			image: '/imgs/wooper-paldean.png',
+            boughtFor: null
+		},
+		{
+			name: 'Quagsire',
+			notes: 'Something 6',
+			image: '/imgs/quagsire-f.png',
+            boughtFor: null
+		},
+		{
+			name: 'Clodsire',
+			notes: 'Something 7',
+			image: '/imgs/clodsire.png',
+            boughtFor: null
+		},
 	];
 
     function onStart() {

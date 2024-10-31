@@ -4,6 +4,10 @@
 
 	let player = Player();
     let game = Game();
+
+    $effect(() => {
+	    console.log("new bid: " + player.bid);
+    });
 </script>
 
 <p>You {#if player.waitingForBid === false}<i class="bi bi-check"></i>{:else}<i class="bi bi-hourglass"></i>{/if}</p>
@@ -20,7 +24,10 @@
 </div>
 {#each game.allOtherPlayers as op}
 	{op.name}
-	{#if op.waiting === false}<i class="bi bi-check"></i>{:else}<i class="bi bi-hourglass"></i>{/if}
+	{#if op.waiting === false}<i class="bi bi-check"></i>{:else}<i class="bi bi-hourglass" onclick={() => {
+        game.lockPlayerBid(op);
+        op.waiting = false;
+    }}></i>{/if}
 {/each}
 
 <style>
