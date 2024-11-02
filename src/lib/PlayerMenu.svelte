@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Game } from "$lib/stores/GameStore.svelte";
+	import Log from "$lib/Log.svelte";
 
 	let game = Game();
 </script>
@@ -16,14 +17,16 @@
 					}}
 				></i>{/if}
 		</p>
-		<div class="row">
-			<div class="col">
-				<small><i class="bi bi-piggy-bank-fill"></i>{op.money}</small>
+		{#if op.name !== game.localPlayer.name}
+			<div class="row">
+				<div class="col">
+					<small><i class="bi bi-piggy-bank-fill"></i>{op.money}</small>
+				</div>
+				<div class="col">
+					<small><i class="bi bi-cash"></i>{op.bid}</small>
+				</div>
 			</div>
-			<div class="col">
-				<small><i class="bi bi-cash"></i>{op.bid}</small>
-			</div>
-		</div>
+		{/if}
 		<div class="row">
 			<div class="col-auto">
 				<div class="row">
@@ -36,9 +39,19 @@
 			</div>
 		</div>
 	{/each}
-	<div class="row border-top mt-3">
-		<div class="col">Tied</div>
+	<div class="row border-top py-2">
+		<div class="col">
+			Tied
+			<div class="row">
+				{#each game.tiedAuctionList as item}
+					<div class="col-auto text-center">
+						<img src={item.image} alt="todo" />
+					</div>
+				{/each}
+			</div>
+		</div>
 	</div>
+	<Log />
 {/if}
 
 <style>

@@ -15,6 +15,7 @@ let tiedItems: AuctionItem[] = $state([]);
 let generalGameState = $state(GameState.waitForBids);
 let timerProgState = $state(0);
 let lockedPlayers: Player[] = $state([]);
+let gameLogs = $state(["Game has started!"]);
 let allPlayersState: Player[] = $state([
     {
         name: 'p2',
@@ -91,11 +92,19 @@ export function Game() {
         set gameState(v) { generalGameState = v },
 
         get localPlayer() { return allPlayersState.find(v => v.name === "You") },
+        get tiedAuctionList() { return tiedItems },
+
+        get logs() { return gameLogs },
+
+        addLog(msg: string) {
+            gameLogs = [msg, ...gameLogs];
+        },
 
         lockPlayerBid: (player: Player) => {
             // Validate in server later
             lockedPlayers = [...lockedPlayers, player];
             player.waiting = false;
+            Game().addLog(`${player.name} bid ${player.bid}`);
         },
         getHighestBidder: (): Player | null => {
             const activePlayers = allPlayersState.filter(player => !player.waiting);
@@ -129,13 +138,29 @@ export function Game() {
 
             Auction().nextItem();
 
+            lockedPlayers = [];
+
             for(let ps of allPlayersState) {
                 ps.waiting = true;
                 ps.bid = 0;
             }
         },
-        auctionWasTied(item: AuctionItem) {
-            tiedItems.push(item);
+        declareTie() {
+            const a = Auction();
+            if(!a.item) {
+                console.error("Item does not exist");
+                return;
+            }
+
+            tiedItems = [...tiedItems, a.item];
+            a.nextItem();
+
+            lockedPlayers = [];
+
+            for(let ps of allPlayersState) {
+                ps.waiting = true;
+                ps.bid = 0;
+            }
         },
         isWaitingForPlayers: () => {
             return lockedPlayers.length < allPlayersState.length;

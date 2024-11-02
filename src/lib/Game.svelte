@@ -11,17 +11,15 @@
 	let timer: number;
 
 	$effect(() => {
-		//console.log("Locked in players: ", game.lockedPlayers);
-		//$inspect(game.lockedPlayers);
-		//$inspect(game.localPlayer);
         const roundState = game.isWaitingForPlayers();
+        
         $inspect(roundState);
         if(!roundState) {
             const winner = game.getHighestBidder();
             if(winner) {
                 game.declareWinner(winner);
             } else {
-                //declare a tie later
+                game.declareTie();
             }
         } else {
             console.log("Waiting for remaining players");
