@@ -10,11 +10,20 @@ The idea is a social game where a certain amount of items are put up for auction
 ### Current Progress
 * Early days, currently it's single player to play around with UI and parts of the game logic.
 * Current demo uses pokemon
+* Some changes are required in order for clever players to abuse friendly mechanics. For example you can see other players' bids making it so you want to wait until the last second to bid.
 
 ### Built with:
 * Sveltekit
 * Typescript
 * Bootstrap + Bootstrap Icons
+
+## Running
+```bash
+npm i
+```
+```bash
+npm run dev
+```
 
 ## Building
 

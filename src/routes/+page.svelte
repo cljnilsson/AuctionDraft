@@ -78,8 +78,8 @@
 			<div class="col col-xl-2 bg-dark text-light">
                 <PlayerMenu />
             </div>
-			<div class="col">
-                <div class="row justify-content-center">
+			<div class="col d-flex flex-column">
+                <div class="row justify-content-center flex-grow-1 align-self-stretch">
                     <div class="col-auto text-center">
                         <Game />
                     </div>
