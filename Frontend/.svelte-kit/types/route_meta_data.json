@@ -1,3 +1,6 @@
 {
-	"/": []
+	"/": [],
+	"/api/themes": [
+		"src/routes/api/themes/+server.ts"
+	]
 }

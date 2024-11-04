@@ -79,7 +79,9 @@
 {:else}
 	<div class="row">
 		<div class="col bg-dark text-light text-center py-5">
-			<button class="btn btn-lg btn-primary" onclick={game.startNew}>Start</button>
+			<h5>Current theme: {game.currentTheme ?? "Loading"}</h5>
+			<button class="btn btn-lg btn-primary">Switch</button>
+			<button class="btn btn-lg btn-primary" onclick={game.startNew} disabled={game.themes.length === 0 || !game.currentTheme}>Start</button>
 		</div>
 	</div>
 {/if}

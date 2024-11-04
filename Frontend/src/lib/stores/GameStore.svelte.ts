@@ -12,11 +12,13 @@ let currentAuctionIndexState: number = $state(0);
 let tiedItems: AuctionItem[] = $state([]);
 
 // Game state
+let themesState: string[] = $state([]);
+let currentThemeState: string | null = $state(null);
 let generalGameState = $state(GameState.waitForBids);
 let timerProgState = $state(0);
 let lockedPlayers: Player[] = $state([]);
 let gameLogs = $state(["Game has started!"]);
-let mainTimer: number | null = $state(null);
+let mainTimer: NodeJS.Timeout | null = $state(null);
 let allPlayersState: Player[] = $state([
     {
         name: 'p2',
@@ -84,6 +86,12 @@ export function Game() {
 
         get timerValue() { return timerProgState },
         set timerValue(v) { timerProgState = v },
+
+        get themes() { return themesState },
+        set themes(v) { themesState = v },
+
+        get currentTheme() { return currentThemeState},
+        set currentTheme(v) { currentThemeState = v },
 
         addLog(msg: string) {
             gameLogs = [msg, ...gameLogs];
