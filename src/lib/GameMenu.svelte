@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { timerProg, Auction, Game } from "$lib/stores/GameStore.svelte";
+	import { Game } from "$lib/stores/GameStore.svelte";
 
-	let timerProgState = timerProg();
-	let auction = Auction();
 	let game = Game();
 
 	function makeBid(amount: number) {
@@ -35,14 +33,6 @@
 		} else {
 			console.error("Player does not exist");
 		}
-
-		/*
-        player.money -= player.bid;
-        auction.list[auction.itemIndex].boughtFor = player.bid;
-		player.inventory.push(auction.list[auction.itemIndex]);
-        player.bid = 0;
-        auction.nextItem(); // Updates index and item*/
-		//timerProg = 0;
 	}
 </script>
 

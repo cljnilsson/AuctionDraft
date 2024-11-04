@@ -3,7 +3,7 @@ import GameState from "$lib/types/GameState";
 import Player from "$lib/types/player";
 
 // The game has started
-let startedState = $state(true);
+let startedState = $state(false);
 
 // Auction state / data
 let auctionState: AuctionItem | null = $state(null);
@@ -16,6 +16,7 @@ let generalGameState = $state(GameState.waitForBids);
 let timerProgState = $state(0);
 let lockedPlayers: Player[] = $state([]);
 let gameLogs = $state(["Game has started!"]);
+let mainTimer: number | null = $state(null);
 let allPlayersState: Player[] = $state([
     {
         name: 'p2',
@@ -39,24 +40,6 @@ let allPlayersState: Player[] = $state([
         inventory: []
     }
 ]);
-
-export function started() {
-    return {
-        get value() { return startedState },
-        set value(v) { startedState = v },
-        toggle: () => {
-            console.log("=>", !startedState);
-            startedState = !startedState;
-        }
-    };
-}
-
-export function timerProg() {
-    return {
-        get value() { return timerProgState },
-        set value(v) { timerProgState = v },
-    };
-}
 
 export function Auction() {
     return {
@@ -82,6 +65,9 @@ export function Auction() {
 
 export function Game() {
     return {
+        get started() { return startedState },
+        set started(v) { startedState = v },
+
         get allOtherPlayers() { return allPlayersState },
         set allOtherPlayers(v) { allPlayersState = v },
 
@@ -95,6 +81,9 @@ export function Game() {
         get tiedAuctionList() { return tiedItems },
 
         get logs() { return gameLogs },
+
+        get timerValue() { return timerProgState },
+        set timerValue(v) { timerProgState = v },
 
         addLog(msg: string) {
             gameLogs = [msg, ...gameLogs];
@@ -138,12 +127,7 @@ export function Game() {
 
             Auction().nextItem();
 
-            lockedPlayers = [];
-
-            for(let ps of allPlayersState) {
-                ps.waiting = true;
-                ps.bid = 0;
-            }
+            Game().newRound();
         },
         declareTie() {
             const a = Auction();
@@ -155,18 +139,50 @@ export function Game() {
             tiedItems = [...tiedItems, a.item];
             a.nextItem();
 
-            lockedPlayers = [];
-
-            for(let ps of allPlayersState) {
-                ps.waiting = true;
-                ps.bid = 0;
-            }
+            Game().newRound();
         },
         isWaitingForPlayers: () => {
             return lockedPlayers.length < allPlayersState.length;
         },
+
         newRound: () => {
             lockedPlayers = [];
+
+            for(const ps of allPlayersState) {
+                ps.waiting = true;
+                ps.bid = 0;
+            }
+
+            const interval = 100;
+            const duration = 30;
+
+            // Probably not ideal, should reuse existing one but seems safer for now
+            if(mainTimer) {
+                clearInterval(mainTimer);
+            }
+
+            mainTimer = setInterval(() => {
+                timerProgState += interval;
+                if (timerProgState >= duration * 1000 && mainTimer) {
+                    clearInterval(mainTimer);
+                    timerProgState = 0;
+
+                    // Maybe far from ideal but it works, I'll look into it later
+                    const game = Game();
+                    console.log("Timer ended");
+                    const winner = game.getHighestBidder();
+                    if(winner) {
+                        game.declareWinner(winner);
+                    } else {
+                        game.declareTie();
+                    }
+                }
+            }, interval);
+        },
+        startNew: () => {
+            startedState = true;
+            Game().newRound();
+            generalGameState = GameState.waitForBids;
         }
     }
 }

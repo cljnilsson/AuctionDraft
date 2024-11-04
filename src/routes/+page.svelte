@@ -1,15 +1,14 @@
 <script lang="ts">
 	import 'bootstrap/dist/css/bootstrap.css';
 	import scriptSrc from 'bootstrap/dist/js/bootstrap.bundle.js?url';
-	import { onDestroy } from 'svelte';
-    import Game from "$lib/Game.svelte";
+    import GameComponent from "$lib/Game.svelte";
     import GameMenu from "$lib/GameMenu.svelte";
     import PlayerMenu from "$lib/PlayerMenu.svelte";
-    import { Auction, started } from '$lib/stores/GameStore.svelte';
+    import { Auction, Game } from '$lib/stores/GameStore.svelte';
 
 	// Game
 	let auction = Auction();
-    let hasStarted = started();
+	let game = Game();
 
 	auction.list = [
 		{
@@ -55,24 +54,13 @@
             boughtFor: null
 		},
 	];
-
-    function onStart() {
-		const updateInterval = 100;
-		/*startedState.value = true;
-		timer = setInterval(() => {
-			timerProgState.value += updateInterval;
-			if (timerProgState.value >= 30000) {
-				clearInterval(timer);
-			}
-		}, updateInterval);*/
-	}
 </script>
 
 <svelte:head>
 	<script src={scriptSrc}></script>
 </svelte:head>
 
-{#if hasStarted}
+{#if game.started}
 	<div>
 		<div class="row">
 			<div class="col col-xl-2 bg-dark text-light">
@@ -81,7 +69,7 @@
 			<div class="col d-flex flex-column">
                 <div class="row justify-content-center flex-grow-1 align-self-stretch">
                     <div class="col-auto text-center">
-                        <Game />
+                        <GameComponent />
                     </div>
                 </div>
                 <GameMenu />
@@ -89,5 +77,9 @@
 		</div>
 	</div>
 {:else}
-	<button onclick={onStart}>Start</button>
+	<div class="row">
+		<div class="col bg-dark text-light text-center py-5">
+			<button class="btn btn-lg btn-primary" onclick={game.startNew}>Start</button>
+		</div>
+	</div>
 {/if}
