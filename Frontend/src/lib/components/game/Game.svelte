@@ -35,6 +35,8 @@
 		<h1>{auction.item?.name}</h1>
 		<img src={auction.item?.image} alt="todo" />
 		<p>{auction.item?.notes}</p>
-		<Timer duration={30} currentProgress={game.timerValue} />
+		{#if game.enableTimer}
+			<Timer duration={30} currentProgress={game.timerValue} />
+		{/if}
 	{/if}
 </div>

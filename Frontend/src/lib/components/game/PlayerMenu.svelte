@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Game } from "$lib/stores/GameStore.svelte";
-	import Log from "$lib/Log.svelte";
+	import Log from "$lib/components/game/Log.svelte";
 
 	let game = Game();
 </script>

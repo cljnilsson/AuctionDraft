@@ -19,6 +19,8 @@ let timerProgState = $state(0);
 let lockedPlayers: Player[] = $state([]);
 let gameLogs = $state(["Game has started!"]);
 let mainTimer: NodeJS.Timeout | null = $state(null);
+let enableTimerState = $state(true);
+
 let allPlayersState: Player[] = $state([
     {
         name: 'p2',
@@ -84,6 +86,9 @@ export function Game() {
 
         get logs() { return gameLogs },
 
+        get enableTimer() { return enableTimerState},
+        set enableTimer(v) { enableTimerState = v},
+
         get timerValue() { return timerProgState },
         set timerValue(v) { timerProgState = v },
 
@@ -103,6 +108,7 @@ export function Game() {
             player.waiting = false;
             Game().addLog(`${player.name} bid ${player.bid}`);
         },
+        
         getHighestBidder: (): Player | null => {
             const activePlayers = allPlayersState.filter(player => !player.waiting);
 
@@ -124,6 +130,7 @@ export function Game() {
 
             return isTie ? null : highestBidder;
         },
+
         declareWinner(winner: Player) {
             if(!auctionState) {
                 console.error("Auction is empty");
@@ -149,6 +156,7 @@ export function Game() {
 
             Game().newRound();
         },
+
         isWaitingForPlayers: () => {
             return lockedPlayers.length < allPlayersState.length;
         },
@@ -161,32 +169,35 @@ export function Game() {
                 ps.bid = 0;
             }
 
-            const interval = 100;
-            const duration = 30;
-
-            // Probably not ideal, should reuse existing one but seems safer for now
-            if(mainTimer) {
-                clearInterval(mainTimer);
-            }
-
-            mainTimer = setInterval(() => {
-                timerProgState += interval;
-                if (timerProgState >= duration * 1000 && mainTimer) {
+            if(enableTimerState) {
+                const interval = 100;
+                const duration = 30;
+    
+                // Probably not ideal, should reuse existing one but seems safer for now
+                if(mainTimer) {
                     clearInterval(mainTimer);
-                    timerProgState = 0;
-
-                    // Maybe far from ideal but it works, I'll look into it later
-                    const game = Game();
-                    console.log("Timer ended");
-                    const winner = game.getHighestBidder();
-                    if(winner) {
-                        game.declareWinner(winner);
-                    } else {
-                        game.declareTie();
-                    }
                 }
-            }, interval);
+    
+                mainTimer = setInterval(() => {
+                    timerProgState += interval;
+                    if (timerProgState >= duration * 1000 && mainTimer) {
+                        clearInterval(mainTimer);
+                        timerProgState = 0;
+    
+                        // Maybe far from ideal but it works, I'll look into it later
+                        const game = Game();
+                        console.log("Timer ended");
+                        const winner = game.getHighestBidder();
+                        if(winner) {
+                            game.declareWinner(winner);
+                        } else {
+                            game.declareTie();
+                        }
+                    }
+                }, interval);
+            }
         },
+
         startNew: () => {
             startedState = true;
             Game().newRound();

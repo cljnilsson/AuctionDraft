@@ -2,7 +2,7 @@
     import "./global.scss";
     import "bootstrap-icons/font/bootstrap-icons.css";
 
-    import Footer from "$lib/Footer.svelte";
+    import Footer from "$lib/components/Footer.svelte";
     import { Game } from "$lib/stores/GameStore.svelte";
 
     import { onMount } from 'svelte';
