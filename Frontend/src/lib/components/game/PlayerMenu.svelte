@@ -9,13 +9,19 @@
 	{#each game.allOtherPlayers as op}
 		<p class:text-danger={op.name === game.localPlayer.name}>
 			{op.name}
-			{#if op.waiting === false}<i class="bi bi-check"></i>{:else}<i
-					class="bi bi-hourglass"
-					onclick={() => {
+			{#if op.waiting === false}<i class="bi bi-check"></i>{:else}
+				<button
+					type="button"
+					aria-label="Bid"
+					class="btn p-0 border-0 bg-transparent text-light"
+					on:click={() => {
 						op.bid = 3;
 						game.lockPlayerBid(op);
 					}}
-				></i>{/if}
+				>
+					<i class="bi bi-hourglass"></i>
+				</button>
+			{/if}
 		</p>
 		{#if op.name !== game.localPlayer.name}
 			<div class="row">
